@@ -1,0 +1,47 @@
+core.workflow(
+    name = "default",
+    origin = git.origin(
+        url = "https://github.com/llvm/llvm-project.git",
+        ref = "master",
+    ),
+    origin_files = glob(
+        [
+            "compiler-rt/lib/gwp_asan/**",
+            "compiler-rt/LICENSE.TXT",
+        ],
+        exclude = [
+            "**/CMakeLists.txt",
+        ],
+    ),
+    destination = git.gerrit_destination(
+        url = "https://android.googlesource.com/platform/external/gwp_asan",
+        fetch = "master",
+    ),
+    destination_files = glob(
+        [
+            "gwp_asan/**",
+            "LICENSE.TXT",
+        ],
+        exclude = [
+            "**/Android.bp"
+        ],
+    ),
+    mode = "ITERATIVE",
+    authoring = authoring.pass_thru(
+        "Dynamic Tools Team <dynamic-tools@google.com>"
+    ),
+    transformations = [
+        core.move("compiler-rt/lib/gwp_asan/", "gwp_asan"),
+        core.move("compiler-rt/LICENSE.TXT", "LICENSE.TXT"),
+    ],
+)
+
+service.migration(
+    migration_name = "default",
+    owner_mdb = "dynamic-tools",
+    contact_email = "dynamic-tools@google.com",
+    notifications = service.notifications(
+        on_error = [service.email(address = 'mitchp@google.com')]
+    ),
+    state = 'ACTIVE',
+)
