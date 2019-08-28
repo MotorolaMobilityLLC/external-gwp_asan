@@ -46,6 +46,6 @@ cc_library_static {
 cc_fuzz {
     name: "stack_trace_compressor_fuzzer",
     defaults: ["gwp_asan_defaults"],
-    srcs: ["gwp_asan/stack_trace_compressor_fuzzer.cpp"],
+    srcs: ["tools/stack_trace_compressor_fuzzer.cpp"],
     static_libs: ["gwp_asan"],
 }
