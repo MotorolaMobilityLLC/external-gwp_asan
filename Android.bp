@@ -17,6 +17,11 @@
 cc_defaults {
     name: "gwp_asan_defaults",
     host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
     vendor_available: true,
 }
 
