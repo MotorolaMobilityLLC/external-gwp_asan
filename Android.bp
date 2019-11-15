@@ -17,19 +17,34 @@
 cc_defaults {
     name: "gwp_asan_defaults",
     host_supported: true,
+    vendor_available: true,
+    recovery_available: true,
+    native_bridge_supported: true,
+
+    // GWP-ASan is used by bionic libc, and should have no libc/libc++
+    // dependencies.
+    system_shared_libs: [],
+    stl: "none",
+
+    // GWP-ASan requires platform (non-emulated) TLS. We use thread local
+    // variables in the core, inlined interface to GWP-ASan.
+    cflags: [
+        "-fno-emulated-tls",
+    ],
+
+    // GWP-ASan currently has no support for darwin.
     target: {
         darwin: {
             enabled: false,
         },
     },
-    vendor_available: true,
 }
 
 cc_library_headers {
     name: "gwp_asan_headers",
     defaults: ["gwp_asan_defaults"],
     export_include_dirs: [
-        "gwp_asan",
+        "."
     ],
 }
 
@@ -37,8 +52,10 @@ cc_library_headers {
 cc_library_static {
     name: "gwp_asan",
     defaults: ["gwp_asan_defaults"],
-    header_libs: ["gwp_asan_headers"],
-    stl: "none",
+    header_libs: [
+        "gwp_asan_headers",
+        "libc_headers" // Required for pthread.h in mutex.h.
+    ],
     srcs: [
         "gwp_asan/guarded_pool_allocator.cpp",
         "gwp_asan/platform_specific/guarded_pool_allocator_posix.cpp",
@@ -50,7 +67,7 @@ cc_library_static {
 
 cc_fuzz {
     name: "stack_trace_compressor_fuzzer",
-    defaults: ["gwp_asan_defaults"],
+    host_supported: true,
     srcs: ["tools/stack_trace_compressor_fuzzer.cpp"],
     static_libs: ["gwp_asan"],
 }
