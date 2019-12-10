@@ -44,7 +44,7 @@ cc_library_headers {
     name: "gwp_asan_headers",
     defaults: ["gwp_asan_defaults"],
     export_include_dirs: [
-        "."
+        ".",
     ],
 }
 
@@ -54,7 +54,7 @@ cc_library_static {
     defaults: ["gwp_asan_defaults"],
     header_libs: [
         "gwp_asan_headers",
-        "libc_headers" // Required for pthread.h in mutex.h.
+        "libc_headers", // Required for pthread.h in mutex.h.
     ],
     srcs: [
         "gwp_asan/guarded_pool_allocator.cpp",
@@ -70,4 +70,24 @@ cc_fuzz {
     host_supported: true,
     srcs: ["tools/stack_trace_compressor_fuzzer.cpp"],
     static_libs: ["gwp_asan"],
+}
+
+// These unit tests are also continuously run upstream in LLVM's buildbots.
+cc_test {
+    name: "gwp_asan_unittest",
+    defaults: ["linux_bionic_supported"],
+    static_libs: [
+        "gwp_asan",
+        "libasync_safe",
+    ],
+    srcs: [
+        "android/test_printf.cpp",
+        "gwp_asan/tests/alignment.cpp",
+        "gwp_asan/tests/basic.cpp",
+        "gwp_asan/tests/compression.cpp",
+        "gwp_asan/tests/mutex_test.cpp",
+        "gwp_asan/tests/slot_reuse.cpp",
+        "gwp_asan/tests/thread_contention.cpp",
+    ],
+    include_dirs: ["bionic/libc/async_safe/include"],
 }
