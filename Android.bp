@@ -90,4 +90,5 @@ cc_test {
         "gwp_asan/tests/thread_contention.cpp",
     ],
     include_dirs: ["bionic/libc/async_safe/include"],
+    test_suites: ["general-tests"],
 }
