@@ -85,6 +85,7 @@ cc_test {
         "gwp_asan/tests/alignment.cpp",
         "gwp_asan/tests/basic.cpp",
         "gwp_asan/tests/compression.cpp",
+        "gwp_asan/tests/harness.cpp",
         "gwp_asan/tests/mutex_test.cpp",
         "gwp_asan/tests/slot_reuse.cpp",
         "gwp_asan/tests/thread_contention.cpp",
