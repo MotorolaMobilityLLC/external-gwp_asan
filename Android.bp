@@ -87,10 +87,12 @@ cc_test {
         "gwp_asan/tests/basic.cpp",
         "gwp_asan/tests/compression.cpp",
         "gwp_asan/tests/harness.cpp",
+        "gwp_asan/tests/late_init.cpp",
         "gwp_asan/tests/mutex_test.cpp",
         "gwp_asan/tests/slot_reuse.cpp",
         "gwp_asan/tests/thread_contention.cpp",
     ],
     include_dirs: ["bionic/libc/async_safe/include"],
     test_suites: ["general-tests"],
+    cflags: ["-fno-emulated-tls"],
 }
