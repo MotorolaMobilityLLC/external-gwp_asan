@@ -22,17 +22,6 @@ cc_defaults {
     native_bridge_supported: true,
     ramdisk_available: true,
 
-    // GWP-ASan is used by bionic libc, and should have no libc/libc++
-    // dependencies.
-    system_shared_libs: [],
-    stl: "none",
-
-    // GWP-ASan requires platform (non-emulated) TLS. We use thread local
-    // variables in the core, inlined interface to GWP-ASan.
-    cflags: [
-        "-fno-emulated-tls",
-    ],
-
     // GWP-ASan currently has no support for darwin.
     target: {
         darwin: {
@@ -41,9 +30,22 @@ cc_defaults {
     },
 }
 
+cc_defaults {
+    name: "gwp_asan_no_libs_defaults",
+    defaults: ["gwp_asan_defaults"],
+
+    // GWP-ASan is used by bionic libc, and should have no libc/libc++
+    // dependencies.
+    system_shared_libs: [],
+    stl: "none",
+}
+
 cc_library_headers {
     name: "gwp_asan_headers",
-    defaults: ["gwp_asan_defaults"],
+    defaults: [
+        "gwp_asan_defaults",
+        "gwp_asan_no_libs_defaults",
+    ],
     export_include_dirs: [
         ".",
     ],
@@ -52,16 +54,42 @@ cc_library_headers {
 // Only static linkage is provided for performance reasons.
 cc_library_static {
     name: "gwp_asan",
-    defaults: ["gwp_asan_defaults"],
+    defaults: ["gwp_asan_no_libs_defaults"],
     header_libs: [
         "gwp_asan_headers",
         "libc_headers", // Required for pthread.h in mutex.h.
     ],
     srcs: [
+        "gwp_asan/common.cpp",
         "gwp_asan/guarded_pool_allocator.cpp",
+        "gwp_asan/platform_specific/common_posix.cpp",
         "gwp_asan/platform_specific/guarded_pool_allocator_posix.cpp",
         "gwp_asan/platform_specific/mutex_posix.cpp",
+        "gwp_asan/platform_specific/utilities_posix.cpp",
         "gwp_asan/random.cpp",
+        "gwp_asan/stack_trace_compressor.cpp",
+    ],
+    // GWP-ASan requires platform (non-emulated) TLS. We use thread local
+    // variables in the core, inlined interface to GWP-ASan.
+    cflags: [
+        "-fno-emulated-tls",
+    ],
+}
+
+// GWP-ASan crash handler API. Provides all the tools you need to symbolize a
+// GWP-ASan crash.
+cc_library {
+    name: "gwp_asan_crash_handler",
+    defaults: ["gwp_asan_defaults"],
+    header_libs: [
+        "gwp_asan_headers",
+        "libc_headers", // Required for assert.h
+    ],
+    srcs: [
+        "gwp_asan/common.cpp",
+        "gwp_asan/crash_handler.cpp",
+        "gwp_asan/platform_specific/common_posix.cpp",
+        "gwp_asan/platform_specific/utilities_posix.cpp",
         "gwp_asan/stack_trace_compressor.cpp",
     ],
 }
@@ -79,6 +107,7 @@ cc_test {
     defaults: ["linux_bionic_supported"],
     static_libs: [
         "gwp_asan",
+        "gwp_asan_crash_handler",
         "libasync_safe",
     ],
     srcs: [
@@ -86,6 +115,7 @@ cc_test {
         "gwp_asan/tests/alignment.cpp",
         "gwp_asan/tests/basic.cpp",
         "gwp_asan/tests/compression.cpp",
+        "gwp_asan/tests/crash_handler_api.cpp",
         "gwp_asan/tests/harness.cpp",
         "gwp_asan/tests/mutex_test.cpp",
         "gwp_asan/tests/slot_reuse.cpp",
