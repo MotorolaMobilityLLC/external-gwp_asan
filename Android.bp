@@ -49,6 +49,12 @@ cc_library_headers {
     export_include_dirs: [
         ".",
     ],
+    apex_available: [
+        // GWP-ASan headers are frequently referenced by apexes that include
+        // references to libc_headers or libc_scudo. These modules manage apex
+        // visibility in Soong, and are globally visible.
+        "//apex_available:anyapex",
+    ],
 }
 
 // Only static linkage is provided for performance reasons.
@@ -73,6 +79,16 @@ cc_library_static {
     // variables in the core, inlined interface to GWP-ASan.
     cflags: [
         "-fno-emulated-tls",
+    ],
+    apex_available: [
+        // Required to not occlude the default platform variation from being
+        // skipped by the apex mutator. If this happens - the license file for
+        // the static GWP-ASan library won't be generated, and you'll get errors
+        // at build time.
+        "//apex_available:platform",
+
+        "com.android.runtime", // GWP-ASan is used in libc.
+        "com.android.media.swcodec", // libc_scudo (from media) uses GWP-ASan.
     ],
 }
 
