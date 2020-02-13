@@ -141,4 +141,8 @@ cc_test {
     include_dirs: ["bionic/libc/async_safe/include"],
     test_suites: ["general-tests"],
     cflags: ["-fno-emulated-tls"],
+
+    // Late initialisation tests should run isolated, as the platform IE TLS
+    // PRNG should be initialised to its default state.
+    isolated: true,
 }
