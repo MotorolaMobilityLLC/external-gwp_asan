@@ -108,6 +108,10 @@ cc_library {
         "gwp_asan/platform_specific/utilities_posix.cpp",
         "gwp_asan/stack_trace_compressor.cpp",
     ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.runtime",
+    ],
 }
 
 cc_fuzz {
