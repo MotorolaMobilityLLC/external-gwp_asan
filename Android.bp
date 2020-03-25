@@ -129,6 +129,7 @@ cc_test {
         "gwp_asan",
         "gwp_asan_crash_handler",
         "libasync_safe",
+        "liblog",
     ],
     srcs: [
         "android/test_printf.cpp",
