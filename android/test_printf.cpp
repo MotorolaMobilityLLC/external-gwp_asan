@@ -9,7 +9,7 @@ namespace {
 void PrintfWrapper(const char *Format, ...) {
   va_list List;
   va_start(List, Format);
-  async_safe_format_log_va_list(ANDROID_LOG_FATAL, "GWP-ASan", Format, List);
+  async_safe_fatal_va_list("GWP-ASan", Format, List);
   va_end(List);
 }
 }; // anonymous namespace
