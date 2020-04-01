@@ -130,14 +130,28 @@ cc_test {
         "gwp_asan_crash_handler",
         "libasync_safe",
         "liblog",
+        "libunwindstack",
+        "liblzma", // Dependency from libunwindstack.
+    ],
+
+    ldflags: [
+        // Ensure that ICF doesn't clobber DeallocateMemory2 into
+        // DeallocateMemory in tests/backtrace.cpp. This is done in the linker,
+        // so `optnone` in the function declaration doesn't help.
+        "-Wl,--icf=none",
     ],
     srcs: [
+        "android/test_backtrace.cpp",
         "android/test_printf.cpp",
+        "gwp_asan/optional/segv_handler_posix.cpp",
         "gwp_asan/tests/alignment.cpp",
+        "gwp_asan/tests/backtrace.cpp",
         "gwp_asan/tests/basic.cpp",
         "gwp_asan/tests/compression.cpp",
         "gwp_asan/tests/crash_handler_api.cpp",
+        "gwp_asan/tests/enable_disable.cpp",
         "gwp_asan/tests/harness.cpp",
+        "gwp_asan/tests/iterate.cpp",
         "gwp_asan/tests/late_init.cpp",
         "gwp_asan/tests/mutex_test.cpp",
         "gwp_asan/tests/slot_reuse.cpp",
@@ -145,7 +159,19 @@ cc_test {
     ],
     include_dirs: ["bionic/libc/async_safe/include"],
     test_suites: ["general-tests"],
-    cflags: ["-fno-emulated-tls"],
+    cflags: [
+        // GWP-ASan requires anything that uses GuardedPoolAllocator headers to
+        // use platform (ELF) TLS.
+        "-fno-emulated-tls",
+
+        // Ensure that the helper functions in test/backtrace.cpp don't get
+        // tail-call optimised, as this breaks the unwind chain.
+        "-fno-optimize-sibling-calls",
+
+        // The experimental pass manager seems to kill __attribute__((optnone)),
+        // and so we disable it (as we rely on optnone for tests/backtrace.cpp).
+        "-fno-experimental-new-pass-manager",
+    ],
 
     // Late initialisation tests should run isolated, as the platform IE TLS
     // PRNG should be initialised to its default state.
