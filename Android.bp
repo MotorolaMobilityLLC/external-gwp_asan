@@ -50,6 +50,9 @@ cc_library_headers {
         ".",
     ],
     apex_available: [
+        // This header lib is depended on by gwp_asan which is available to
+        // platform.
+        "//apex_available:platform",
         // GWP-ASan headers are frequently referenced by apexes that include
         // references to libc_headers or libc_scudo. These modules manage apex
         // visibility in Soong, and are globally visible.
