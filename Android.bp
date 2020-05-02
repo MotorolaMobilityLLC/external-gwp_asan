@@ -50,13 +50,16 @@ cc_library_headers {
         ".",
     ],
     apex_available: [
-        // This header lib is depended on by gwp_asan which is available to
-        // platform.
+        // This header lib is compiled also as part of the platform due to libasync_safe
+        // and others that are compiled with this header and are statically included
+        // in the platform side.
         "//apex_available:platform",
-        // GWP-ASan headers are frequently referenced by apexes that include
-        // references to libc_headers or libc_scudo. These modules manage apex
-        // visibility in Soong, and are globally visible.
-        "//apex_available:anyapex",
+        "com.android.runtime",
+        // GWP-ASan headers are currently referenced by the following additional APEXes
+        "com.android.art.debug",
+        "com.android.art.release",
+        "com.android.media",
+        "com.android.media.swcodec",
     ],
 }
 
