@@ -139,6 +139,9 @@ cc_test {
         "libunwindstack",
         "liblzma", // Dependency from libunwindstack.
     ],
+    shared_libs: [
+        "libbase",
+    ],
 
     ldflags: [
         // Ensure that ICF doesn't clobber DeallocateMemory2 into
