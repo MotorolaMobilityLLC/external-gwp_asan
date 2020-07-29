@@ -21,9 +21,7 @@
 #include <unwindstack/LocalUnwinder.h>
 #include <unwindstack/Unwinder.h>
 
-namespace gwp_asan {
-namespace options {
-
+namespace {
 // In reality, on Android, we use two separate unwinders. GWP-ASan internally
 // uses a fast, frame-pointer unwinder for allocation/deallocation stack traces
 // (android_unsafe_frame_pointer_chase, provided by bionic libc). When a process
@@ -49,8 +47,10 @@ size_t BacktraceUnwindstack(uintptr_t *TraceBuffer, size_t Size) {
   return frames.size();
 }
 
-Backtrace_t getBacktraceFunction() {
-  return BacktraceUnwindstack;
+// We don't need any custom handling for the Segv backtrace - the unwindstack
+// unwinder has no problems with unwinding through a signal handler.
+size_t SegvBacktrace(uintptr_t *TraceBuffer, size_t Size, void * /*Context*/) {
+  return BacktraceUnwindstack(TraceBuffer, Size);
 }
 
 // This function is a good mimic as to what's happening in the out-of-process
@@ -59,9 +59,9 @@ Backtrace_t getBacktraceFunction() {
 // function called from a signal handler, and is extraordinarily not
 // signal-safe, but works for our purposes.
 void PrintBacktraceUnwindstack(uintptr_t *TraceBuffer, size_t TraceLength,
-                               crash_handler::Printf_t Print) {
+                               gwp_asan::crash_handler::Printf_t Print) {
   unwindstack::UnwinderFromPid unwinder(
-      AllocationMetadata::kMaxTraceLengthToCollect, getpid());
+      gwp_asan::AllocationMetadata::kMaxTraceLengthToCollect, getpid());
   unwinder.Init(unwindstack::Regs::CurrentArch());
   unwinder.SetRegs(unwindstack::Regs::CreateFromLocal());
 
@@ -73,8 +73,20 @@ void PrintBacktraceUnwindstack(uintptr_t *TraceBuffer, size_t TraceLength,
   }
 }
 
+} // anonymous namespace
+
+namespace gwp_asan {
+namespace options {
+Backtrace_t getBacktraceFunction() {
+  return BacktraceUnwindstack;
+}
+
 crash_handler::PrintBacktrace_t getPrintBacktraceFunction() {
   return PrintBacktraceUnwindstack;
 }
 } // namespace options
+
+namespace crash_handler {
+SegvBacktrace_t getSegvBacktraceFunction() { return SegvBacktrace; }
+} // namespace crash_handler
 } // namespace gwp_asan
