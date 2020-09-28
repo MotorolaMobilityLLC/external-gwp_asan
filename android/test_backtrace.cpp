@@ -62,8 +62,11 @@ void PrintBacktraceUnwindstack(uintptr_t *TraceBuffer, size_t TraceLength,
                                gwp_asan::crash_handler::Printf_t Print) {
   unwindstack::UnwinderFromPid unwinder(
       gwp_asan::AllocationMetadata::kMaxTraceLengthToCollect, getpid());
-  unwinder.Init(unwindstack::Regs::CurrentArch());
   unwinder.SetRegs(unwindstack::Regs::CreateFromLocal());
+  if (!unwinder.Init()) {
+    Print("  Unable to init unwinder: %s\n", unwinder.LastErrorCodeString());
+    return;
+  }
 
   for (size_t i = 0; i < TraceLength; ++i) {
     unwindstack::FrameData frame_data =
