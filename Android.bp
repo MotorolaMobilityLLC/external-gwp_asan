@@ -136,7 +136,7 @@ cc_test {
         "gwp_asan_crash_handler",
         "libasync_safe",
         "liblog",
-        "libunwindstack",
+        "libunwindstack_no_dex",
         "liblzma", // Dependency from libunwindstack.
     ],
     shared_libs: [
