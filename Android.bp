@@ -21,6 +21,7 @@ cc_defaults {
     recovery_available: true,
     native_bridge_supported: true,
     ramdisk_available: true,
+    vendor_ramdisk_available: true,
 
     // GWP-ASan currently has no support for darwin.
     target: {
