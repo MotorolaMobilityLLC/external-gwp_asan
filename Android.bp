@@ -79,8 +79,8 @@ cc_library_static {
         "gwp_asan/platform_specific/guarded_pool_allocator_posix.cpp",
         "gwp_asan/platform_specific/mutex_posix.cpp",
         "gwp_asan/platform_specific/utilities_posix.cpp",
-        "gwp_asan/random.cpp",
         "gwp_asan/stack_trace_compressor.cpp",
+        "gwp_asan/utilities.cpp"
     ],
     // GWP-ASan requires platform (non-emulated) TLS. We use thread local
     // variables in the core, inlined interface to GWP-ASan.
