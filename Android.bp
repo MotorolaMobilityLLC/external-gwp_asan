@@ -183,8 +183,4 @@ cc_test {
         // and so we disable it (as we rely on optnone for tests/backtrace.cpp).
         "-fno-experimental-new-pass-manager",
     ],
-
-    // Late initialisation tests should run isolated, as the platform IE TLS
-    // PRNG should be initialised to its default state.
-    isolated: true,
 }
