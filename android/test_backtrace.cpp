@@ -40,7 +40,7 @@ size_t BacktraceUnwindstack(uintptr_t *TraceBuffer, size_t Size) {
   if (!unwinder.Unwind(&frames, Size)) {
     return 0;
   }
-  for (const auto& frame : frames) {
+  for (const auto &frame : frames) {
     *TraceBuffer = frame.pc;
     TraceBuffer++;
   }
@@ -59,7 +59,7 @@ size_t SegvBacktrace(uintptr_t *TraceBuffer, size_t Size, void * /*Context*/) {
 // function called from a signal handler, and is extraordinarily not
 // signal-safe, but works for our purposes.
 void PrintBacktraceUnwindstack(uintptr_t *TraceBuffer, size_t TraceLength,
-                               gwp_asan::crash_handler::Printf_t Print) {
+                               gwp_asan::Printf_t Print) {
   unwindstack::UnwinderFromPid unwinder(
       gwp_asan::AllocationMetadata::kMaxTraceLengthToCollect, getpid());
   unwinder.SetRegs(unwindstack::Regs::CreateFromLocal());
@@ -79,17 +79,13 @@ void PrintBacktraceUnwindstack(uintptr_t *TraceBuffer, size_t TraceLength,
 } // anonymous namespace
 
 namespace gwp_asan {
-namespace options {
-Backtrace_t getBacktraceFunction() {
-  return BacktraceUnwindstack;
-}
+namespace backtrace {
+options::Backtrace_t getBacktraceFunction() { return BacktraceUnwindstack; }
 
-crash_handler::PrintBacktrace_t getPrintBacktraceFunction() {
+PrintBacktrace_t getPrintBacktraceFunction() {
   return PrintBacktraceUnwindstack;
 }
-} // namespace options
 
-namespace crash_handler {
 SegvBacktrace_t getSegvBacktraceFunction() { return SegvBacktrace; }
-} // namespace crash_handler
+} // namespace backtrace
 } // namespace gwp_asan

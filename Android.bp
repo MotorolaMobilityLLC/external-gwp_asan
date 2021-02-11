@@ -81,7 +81,6 @@ cc_library_static {
         "gwp_asan/platform_specific/mutex_posix.cpp",
         "gwp_asan/platform_specific/utilities_posix.cpp",
         "gwp_asan/stack_trace_compressor.cpp",
-        "gwp_asan/utilities.cpp"
     ],
     // GWP-ASan requires platform (non-emulated) TLS. We use thread local
     // variables in the core, inlined interface to GWP-ASan.
@@ -129,6 +128,16 @@ cc_fuzz {
     static_libs: ["gwp_asan"],
 }
 
+cc_fuzz {
+    name: "options_parser_fuzzer",
+    host_supported: true,
+    srcs: [
+        "tools/options_parser_fuzzer.cpp",
+        "gwp_asan/optional/options_parser.cpp",
+    ],
+    static_libs: ["gwp_asan"],
+}
+
 // These unit tests are also continuously run upstream in LLVM's buildbots.
 cc_test {
     name: "gwp_asan_unittest",
@@ -154,6 +163,7 @@ cc_test {
     srcs: [
         "android/test_backtrace.cpp",
         "android/test_printf.cpp",
+        "gwp_asan/optional/options_parser.cpp",
         "gwp_asan/optional/segv_handler_posix.cpp",
         "gwp_asan/tests/alignment.cpp",
         "gwp_asan/tests/backtrace.cpp",
@@ -165,6 +175,7 @@ cc_test {
         "gwp_asan/tests/iterate.cpp",
         "gwp_asan/tests/late_init.cpp",
         "gwp_asan/tests/mutex_test.cpp",
+        "gwp_asan/tests/options.cpp",
         "gwp_asan/tests/slot_reuse.cpp",
         "gwp_asan/tests/thread_contention.cpp",
     ],
