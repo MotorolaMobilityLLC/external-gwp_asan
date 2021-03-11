@@ -1,10 +1,13 @@
 {
   "presubmit": [
     {
-      "name": "gwp_asan_unittest"
+      "name": "CtsGwpAsanTestCases"
     },
     {
-      "name": "CtsGwpAsanTestCases"
+      "name": "debuggerd_test"
+    },
+    {
+      "name": "gwp_asan_unittest"
     }
   ],
   "imports": [
